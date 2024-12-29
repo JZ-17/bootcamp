@@ -1,0 +1,25 @@
+.flashcard {
+    display: inline-block;
+    background-color: #fff;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #007bff;
+    padding: 100px;
+  }
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
