@@ -1,21 +1,21 @@
 import React from 'react';
 import './CardEditor.css';
+import { Link } from 'react-router-dom';
 
 class CardEditor extends React.Component {
   constructor(props) {
     super(props);
     this.state = { front: '', back: '' };
   }
-  // Functions
+
   addCard = () => {
-    const{ front, back } = this.state;
+    const { front, back } = this.state;
     if (front.trim() === '' || back.trim() === '') {
-        return;
-      }
-    else {
-        this.props.addCard(this.state);
-        this.setState({ front: '', back: '' });
+      alert('Both the front and back fields must be filled out.');
+      return;
     }
+    this.props.addCard(this.state);
+    this.setState({ front: '', back: '' });
   };
 
   deleteCard = (index) => {
@@ -26,7 +26,6 @@ class CardEditor extends React.Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  // Rendering Orientation
   render() {
     const cards = this.props.cards.map((card, index) => (
       <tr key={index}>
@@ -67,9 +66,17 @@ class CardEditor extends React.Component {
           value={this.state.back}
         />
         <button onClick={this.addCard}>Add Card</button>
+        <br />
+        <Link to="/viewer">
+          <button>Go to Card Viewer</button>
+        </Link>
+        <Link to="/">
+          <button>Go to Home Page</button>
+        </Link>
       </div>
     );
   }
 }
 
 export default CardEditor;
+

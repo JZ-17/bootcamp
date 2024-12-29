@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import CardEditor from './CardEditor';
 import CardViewer from './CardViewer';
+import Homepage from './Homepage';
+import { Routes, Route } from 'react-router-dom';
 
 class App extends React.Component {
   /* Cards */
@@ -12,13 +14,11 @@ class App extends React.Component {
         { front: 'front1', back: 'back1' },
         { front: 'front2', back: 'back2' },
       ],
-      editor: true,
     };
   }
 
   /* Add and Delete Card Functions for Card Editor */
   addCard = (card) => {
-    // Use spread operator to add new card
     const cards = [...this.state.cards, card];
     this.setState({ cards });
   };
@@ -29,41 +29,27 @@ class App extends React.Component {
     this.setState({ cards });
   };
 
-  /* Toggle between Editor and Viewer */
-  toggleMode = () => {
-    if (this.state.cards.length === 0) {
-      return;
-    }
-    else {
-      this.setState((prevState) => ({
-        editor: !prevState.editor,
-      }));
-    }
-  };
-
   /* Rendering Clause */
   render() {
-    if (this.state.editor) {
-      return (
-        <div>
-          <button onClick={this.toggleMode}>Switch to Viewer</button>
-          <CardEditor
-            addCard={this.addCard}
-            deleteCard={this.deleteCard}
-            cards={this.state.cards}
+    return (
+        <Routes>
+          <Route path="*" element={<Homepage />} />
+          <Route
+            path="/editor"
+            element={
+              <CardEditor
+                addCard={this.addCard}
+                cards={this.state.cards}
+                deleteCard={this.deleteCard}
+              />
+            }
           />
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <button onClick={this.toggleMode} disabled={this.state.cards.length === 0}>
-            Switch to Editor
-          </button>
-          <CardViewer cards={this.state.cards} />
-        </div>
-      );
-    }
+          <Route
+            path="/viewer"
+            element={<CardViewer cards={this.state.cards} />}
+          />
+        </Routes>
+    );
   }
 }
 
