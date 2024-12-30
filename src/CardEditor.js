@@ -1,82 +1,97 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ref, push, update } from 'firebase/database';
+import { database } from './index';
 import './CardEditor.css';
-import { Link } from 'react-router-dom';
 
-class CardEditor extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { front: '', back: '' };
-  }
+const CardEditor = () => {
+  const [cards, setCards] = useState([]);
+  const [front, setFront] = useState('');
+  const [back, setBack] = useState('');
+  const [name, setName] = useState('');
+  const navigate = useNavigate();
 
-  addCard = () => {
-    const { front, back } = this.state;
-    if (front.trim() === '' || back.trim() === '') {
-      alert('Both the front and back fields must be filled out.');
+  const addCard = () => {
+    if (!front.trim() || !back.trim()) {
+      alert('Cannot add empty card');
       return;
     }
-    this.props.addCard(this.state);
-    this.setState({ front: '', back: '' });
+    setCards([...cards, { front: front.trim(), back: back.trim() }]);
+    setFront('');
+    setBack('');
   };
 
-  deleteCard = (index) => {
-    this.props.deleteCard(index);
+  const deleteCard = (index) => {
+    setCards(cards.filter((_, i) => i !== index));
   };
 
-  handleChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
+  const createDeck = () => {
+    const flashcardsRef = ref(database, '/flashcards');
+    const newDeckRef = push(flashcardsRef);
+    const deckId = newDeckRef.key;
+
+    const newDeck = { cards, name };
+    const updates = {};
+    updates[`/flashcards/${deckId}`] = newDeck;
+    updates[`/homepage/${deckId}`] = { name };
+
+    update(ref(database), updates)
+      .then(() => navigate(`/viewer/${deckId}`))
+      .catch((error) => console.error('Error creating deck:', error));
   };
 
-  render() {
-    const cards = this.props.cards.map((card, index) => (
-      <tr key={index}>
-        <td>{card.front}</td>
-        <td>{card.back}</td>
-        <td>
-          <button onClick={() => this.deleteCard(index)}>Delete Card</button>
-        </td>
-      </tr>
-    ));
-
-    return (
+  return (
+    <div>
+      <h2>Card Editor</h2>
       <div>
-        <h2>Card Editor</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Front</th>
-              <th>Back</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody>{cards}</tbody>
-        </table>
-
-        <br />
-
+        Deck Name:{' '}
         <input
-          name="front"
-          onChange={this.handleChange}
-          placeholder="Front of card"
-          value={this.state.front}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter deck name"
         />
-        <input
-          name="back"
-          onChange={this.handleChange}
-          placeholder="Back of card"
-          value={this.state.back}
-        />
-        <button onClick={this.addCard}>Add Card</button>
-        <br />
-        <Link to="/viewer">
-          <button>Go to Card Viewer</button>
-        </Link>
-        <Link to="/">
-          <button>Go to Home Page</button>
-        </Link>
       </div>
-    );
-  }
-}
+      <br />
+      <table>
+        <thead>
+          <tr>
+            <th>Front</th>
+            <th>Back</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cards.map((card, index) => (
+            <tr key={index}>
+              <td>{card.front}</td>
+              <td>{card.back}</td>
+              <td>
+                <button onClick={() => deleteCard(index)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <br />
+      <input
+        value={front}
+        onChange={(e) => setFront(e.target.value)}
+        placeholder="Front of card"
+      />
+      <input
+        value={back}
+        onChange={(e) => setBack(e.target.value)}
+        placeholder="Back of card"
+      />
+      <button onClick={addCard}>Add Card</button>
+      <br />
+      <button onClick={createDeck} disabled={!name.trim() || cards.length === 0}>
+        Create Deck
+      </button>
+      <br />
+      <Link to="/">Home</Link>
+    </div>
+  );
+};
 
 export default CardEditor;
-

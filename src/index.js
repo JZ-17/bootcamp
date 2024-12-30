@@ -1,60 +1,62 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import 'firebase/database'
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import { combineReducers } from '@reduxjs/toolkit';
 import { ReactReduxFirebaseProvider } from 'react-redux-firebase';
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { firebaseReducer } from 'react-redux-firebase';
+import { createStore } from 'redux';
 
-// Firebase Config
+// Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAPeoHXmab_rl6-ilnG0JvijcJQea_g3Ng",
-  authDomain: "bootcamp-part-2-c4c74.firebaseapp.com",
-  projectId: "bootcamp-part-2-c4c74",
-  storageBucket: "bootcamp-part-2-c4c74.firebasestorage.app",
-  messagingSenderId: "800174203070",
-  appId: "1:800174203070:web:80050e7d4d5bbb5ab47eef",
-  databaseURL: "https://bootcamp-part-2-c4c74-default-rtdb.firebaseio.com/",
+  apiKey: "AIzaSyArwa3PqBffVpy4fb-AwO82BcH_3h8z1a8",
+  authDomain: "bootcamp-4b036.firebaseapp.com",
+  databaseURL: "https://bootcamp-4b036-default-rtdb.firebaseio.com",
+  projectId: "bootcamp-4b036",
+  storageBucket: "bootcamp-4b036.appspot.com",
+  messagingSenderId: "393561566714",
+  appId: "1:393561566714:web:493239a07ae58d325a8843",
+  measurementId: "G-PGWV5067Q8"
 };
 
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-const database = getDatabase(firebaseApp);
-console.log("Database initialized:", database);
+// Initialize Firebase and Database
+export const app = initializeApp(firebaseConfig);
+export const database = getDatabase(app);
 
-// Combine Reducers
-const rootReducer = combineReducers({
-  firebase: firebaseReducer,
-});
+// Console log to ensure Firebase is initialized
+console.log('Firebase initialized:', app);
+console.log('Database initialized:', database);
 
-// Create Redux Store
-const store = configureStore({
-  reducer: rootReducer,
-});
-
-// react-redux-firebase Config
+// Redux configuration
 const rrfConfig = {
-  userProfile: "users",
+  userProfile: 'users', 
+  useFirestoreForProfile: false, 
 };
+
+const rootReducer = combineReducers({
+  firebase: firebaseReducer, // Integrate firebaseReducer
+});
+
+const store = createStore(rootReducer);
 
 const rrfProps = {
-  firebase: firebaseApp,
+  firebase: app,
   config: rrfConfig,
   dispatch: store.dispatch,
 };
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+// Render the application
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <ReactReduxFirebaseProvider {...rrfProps}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ReactReduxFirebaseProvider>
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <ReactReduxFirebaseProvider {...rrfProps}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ReactReduxFirebaseProvider>
+  </Provider>
 );
